@@ -37,8 +37,3 @@ Enhancements to Consider:
 	•	Timer: Introduce a timer for additional challenge.
 
 This implementation is engaging and well-structured for educational or entertainment purposes.
-
-
-Hi I am Ayan Roy
-Radhe  Radhe 
-Myself Anik
