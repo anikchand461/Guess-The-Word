@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lobster&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+    body {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: url('https://www.transparenttextures.com/patterns/asfalt.png'); /* Background texture */
+        background-size: cover;
+        margin: 0;
+        font-family: "Varela Round", sans-serif;
+        height: 100vh;
+        position: relative;
+    }
+
+    /* Adding line designs with CSS */
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(45deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+            linear-gradient(-45deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+        background-size: 50px 50px; /* Adjust grid size */
+        opacity: 0.25; /* Light opacity for subtle lines */
+        pointer-events: none; /* Prevents lines from interfering with the UI */
+    }
+    body::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://www.transparenttextures.com/patterns/asfalt.png'); /* Subtle texture */
+        opacity: 0.1; /* Light opacity for texture */
+        pointer-events: none; /* Makes sure the texture does not interfere with interactions */
+    }
+    .heading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #300ab9;
+        color: white;
+        width: 100%;
+        height: 20vh;
+        text-align: center;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+    .heading h1 {
+        padding: 15px;
+        font-family: "Varela Round", sans-serif;
+        font-weight: 900;
+        font-size: 3rem; /* Default size */
+    }
+    
+    /* Larger heading for desktop screens */
+    @media (min-width: 1024px) {
+        .heading h1 {
+            font-size: 4rem; /* Larger size for desktop */
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .keyboard-container {
+            display: flex;                /* Enable Flexbox */
+            justify-content: center;      /* Horizontally center the content */
+            align-items: center;          /* Vertically center the content (if needed) */
+            width: 100vw;                 /* Full viewport width */
+        }
+    
+        #keyboard {
+            width: 50vw;                  /* Inner keyboard width is 50% of viewport width */
+            display: flex;                /* Align buttons inside horizontally */
+            flex-wrap: wrap;              /* Wrap buttons if they exceed width */
+            gap: 10px;                    /* Gap between buttons */
+            justify-content: center;      /* Center buttons inside */
+        }
+    
+        /* Other button styles for spacing */
+        #keyboard button {
+            width: 70px; 
+            height: 70px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            background-color: #3768ef;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: inset -4px 4px 6px rgba(0, 0, 0, 0.7), 5px 4px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .display-container {
+            width: 100%;                 /* Full width for the container */
+            display: flex;               /* Enable flexbox */
+            justify-content: center;     /* Horizontally center the word display */
+        }
+    
+        #word-display {
+            width: 60%;                  /* Set reduced width */
+            display: flex;
+            justify-content: center;     /* Center the content inside */
+            gap: 10px;
+            font-size: 2rem;             /* Adjust font size for better fit */
+            font-weight: bold;
+            text-align: center;
+            background-color: rgb(45, 138, 219);
+            padding: 10px;
+            border-radius: 10px;
+        }
+    }
+    #word-display {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        background-color: rgba(45, 138, 219, 0.7); /* Slight transparency */
+        height: 8vh;
+        width: 100vw;
+        border-radius: 10px;
+        align-items: center; /* Ensures text is vertically centered */
+    }
+    .letter {
+        font-size: clamp(16px, 4vw, 36px); /* Adjusts size dynamically */
+        font-weight: bolder;
+    }
+    #keyboard {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        padding: 10px;
+    }
+    #keyboard button {
+        width: 70px;
+        height: 70px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 10px;
+        background-color: #3768ef;
+        color: rgb(255, 255, 255);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        box-shadow: inset -4px 4px 6px rgba(0, 0, 0, 0.7), 5px 4px 8px rgba(0, 0, 0, 0.7);
+    }
+    
+    #keyboard button:hover {
+        background-color: #0056b3;
+        transform: scale(1.1);
+    }
+    
+    #keyboard button:disabled {
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+    }
+    #message {
+        margin-top: 20px;
+        font-size: 1rem;
+    }
+    #difficulty {
+        font-size: 1rem;
+        padding: 5px;
+    }
+    #restart-button {
+        margin-top: 10px;
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    #keyboard button {
+        width: 70px; 
+        height: 70px;
+        font-size: 24px;
+        font-weight: bold;
+        border-radius: 10px;
+        background-color: #3768ef;
+        color: rgb(255, 255, 255);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        box-shadow: inset -4px 4px 6px rgba(0, 0, 0, 0.7), 5px 4px 8px rgba(0, 0, 0, 0.7);
+    }
+    
+    /* Adding animation effect */
+    .clicked {
+        animation: buttonClick 1s ease-in-out;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+        .heading h1 {
+            font-size: 2rem; /* Smaller heading for smaller screens */
+        }
+        #keyboard button {
+            width: 60px;
+            height: 60px;
+            font-size: 16px;
+        }
+        #message {
+            font-size: 0.9rem;
+        }
+        #difficulty {
+            font-size: 0.9rem;
+        }
+        #restart-button {
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .heading h1 {
+            font-size: 2.3rem;
+        }
+        #keyboard button {
+            width: 50px;
+            height: 50px;
+            font-size: 14px;
+        }
+        #message {
+            font-size: 0.8rem;
+        }
+        #difficulty {
+            font-size: 0.8rem;
+        }
+        #restart-button {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+    }
+    #restart-button,
+    #difficulty {
+        font-family: "Varela Round", sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        margin: 10px;
+    }
+
+    /* Restart Button Styling */
+    #restart-button {
+        background: linear-gradient(135deg, #ff5757, #ff8c00); /* Gradient background */
+        color: white;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #restart-button:hover {
+        background: linear-gradient(135deg, #ff8c00, #ff5757); /* Reversed gradient on hover */
+        transform: scale(1.1); /* Slight enlargement */
+        box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Difficulty Dropdown Styling */
+    #difficulty {
+        background: linear-gradient(135deg, #3fa3e9, #0056b3); /* Gradient background */
+        color: white;
+        border: 2px solid #0056b3;
+        padding: 10px 20px;
+        appearance: none; /* Removes the default dropdown arrow */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #difficulty:hover {
+        background: linear-gradient(135deg, #0056b3, #3fa3e9); /* Reversed gradient on hover */
+        transform: scale(1.05); /* Slight enlargement */
+        box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Custom dropdown arrow */
+    #difficulty::after {
+        content: "▼";
+        font-size: 0.8rem;
+        color: white;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Responsiveness for smaller screens */
+    @media (max-width: 480px) {
+        #restart-button,
+        #difficulty {
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+    }
+
+/* Game Container */
+.game-container {
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    align-items: center; /* Center items horizontally */
+    gap: 20px; /* Space between sections */
+    margin-top: 20px; /* Adjust spacing from the top */
+}
+
+/* Lives Section */
+#lives {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #3fa3e9, #0056b3);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Controls Section */
+.controls {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Space between buttons */
+}
+
+/* Button Styles */
+button {
+    font-family: "Varela Round", sans-serif;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #0056b3;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3fa3e9;
+}
+
+/* Animation for Lives Section */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+</head>
+<body>
+    <div class="heading">
+        <h1>Hangman Game</h1>
+    </div>
+    <div class="display-container">
+        <div id="word-display"></div>
+    </div>
+    <div class="keyboard-container">
+        <div id="keyboard"></div>
+    </div>
+
+    <!-- Move Lives section above restart and difficulty -->
+    <div class="lives-container">
+        <p id="lives">Lives Left: 5</p>
+    </div>
+
+    <div class="controls-container">
+        <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <button id="restart-button" class="hidden">Restart Game</button>
+    </div>
+
+    <p id="message" class="hidden"></p>
+    <script src="hangman.js"></script>
+</body>
+</html>
